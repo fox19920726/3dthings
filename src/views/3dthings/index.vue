@@ -1,5 +1,68 @@
 <template>
-  <div class="container" ref="things"></div>
+  <div class="wrap">
+    <div class="left-bar">
+      <ul>
+        <li
+          v-for="(item, index) in nav"
+          :key="index"
+          :class="isActive == index ? 'active' : ''"
+          @click="pickNav(index)"
+        >
+          <el-tooltip
+            popper-class="offset-left"
+            effect="dark"
+            :content="item.title"
+            placement="right"
+          >
+            <i :class="'el-icon-' + item.icon"></i>
+          </el-tooltip>
+        </li>
+      </ul>
+    </div>
+    <div class="place-info">
+      <p class="title">商场{{storeIndex+1}}区</p>
+      <div
+        v-for="(parentItem, parentIndex) in detailList"
+        :key="parentIndex"
+      >
+        <el-tabs
+          v-if="storeIndex == parentIndex"
+          v-model="activeName"
+          type="card"
+        >
+          <el-tab-pane label="基本情况" name="first">
+            <ul
+            >
+              <li
+                v-for="(item, index) in parentItem.basic"
+                :key="index"
+                class="item"
+              ><span>{{item.title}}</span><span>{{item.value}}</span></li>
+            </ul>
+          </el-tab-pane>
+          <el-tab-pane label="管理人员" name="second">
+            <ul>
+              <li
+                v-for="(item, index) in parentItem.manager"
+                :key="index"
+                class="item"
+              ><span>{{item.title}}</span><span>{{item.value}}</span></li>
+            </ul>
+          </el-tab-pane>
+          <el-tab-pane label="租期" name="third">
+            <ul>
+              <li
+                v-for="(item, index) in parentItem.range"
+                :key="index"
+                class="item"
+              ><span>{{item.title}}</span><span>{{item.value}}</span></li>
+            </ul>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+    </div>
+    <div class="container" ref="things"></div>
+  </div>
 </template>
 
 <script>
@@ -14,10 +77,167 @@ export default {
   },
   data() {
     return {
-      INTERSECTED: ''
+      INTERSECTED: '',
+      textWz: {},
+      nav: [{
+        icon: 'house',
+        title: '商场编号'
+      }, {
+        icon: 'user',
+        title: '人流量'
+      }, {
+        icon: 'guide',
+        title: '出口位置'
+      }, {
+        icon: 'camera',
+        title: '监控位置'
+      }],
+      isActive: 0,
+      detailList: [{
+        basic: [{
+          title: '店铺面积',
+          value: '188'
+        }, {
+          title: '运营状况',
+          value: '优'
+        }],
+        manager: [{
+          title: '工商',
+          value: '陈志'
+        }, {
+          title: '环保',
+          value: '李青'
+        }, {
+          title: '安保',
+          value: '王琪'
+        }, {
+          title: '店长',
+          value: '马梅梅'
+        }, {
+          title: '副店长',
+          value: '蒋一程'
+        }],
+        range: [{
+          title: '当前租期',
+          value: '1年',
+        }, {
+          title: '历史租期',
+          value: '无',
+        }, {
+          title: '欠费情况',
+          value: '无',
+        }]
+      }, {
+        basic: [{
+          title: '店铺面积',
+          value: '69'
+        }, {
+          title: '运营状况',
+          value: '良好'
+        }],
+        manager: [{
+          title: '工商',
+          value: '赵天骐'
+        }, {
+          title: '环保',
+          value: '李志'
+        }, {
+          title: '安保',
+          value: '王琪'
+        }, {
+          title: '店长',
+          value: '马梅梅'
+        }, {
+          title: '副店长',
+          value: '蒋一程'
+        }],
+        range: [{
+          title: '当前租期',
+          value: '5年',
+        }, {
+          title: '历史租期',
+          value: '已租8年',
+        }, {
+          title: '欠费情况',
+          value: '无'
+        }]
+      }, {
+        basic: [{
+          title: '店铺面积',
+          value: '26'
+        }, {
+          title: '运营状况',
+          value: '良好'
+        }],
+        manager: [{
+          title: '工商',
+          value: '赵天骐'
+        }, {
+          title: '环保',
+          value: '李志'
+        }, {
+          title: '安保',
+          value: '王琪'
+        }, {
+          title: '店长',
+          value: '马梅梅'
+        }, {
+          title: '副店长',
+          value: '蒋一程'
+        }],
+        range: [{
+          title: '当前租期',
+          value: '5年',
+        }, {
+          title: '历史租期',
+          value: '已租8年',
+        }, {
+          title: '欠费情况',
+          value: '无'
+        }]
+      }, {
+        basic: [{
+          title: '店铺面积',
+          value: '77'
+        }, {
+          title: '运营状况',
+          value: '良好'
+        }],
+        manager: [{
+          title: '工商',
+          value: '赵天骐'
+        }, {
+          title: '环保',
+          value: '李志'
+        }, {
+          title: '安保',
+          value: '王琪'
+        }, {
+          title: '店长',
+          value: '马梅梅'
+        }, {
+          title: '副店长',
+          value: '蒋一程'
+        }],
+        range: [{
+          title: '当前租期',
+          value: '5年',
+        }, {
+          title: '历史租期',
+          value: '已租8年',
+        }, {
+          title: '欠费情况',
+          value: '无'
+        }]
+      }],
+      activeName: 'first',
+      storeIndex: 0
     }
   },
   methods: {
+    pickNav(index) {
+      this.isActive = index
+    },
     createScence() {
       this.createScene()
       this.createCamera()
@@ -25,8 +245,12 @@ export default {
       this.createControls()
       this.createAxesHelper()
       this.createGround()
+      this.createCube()
+      this.createCircleCamera()
       this.createLight()
+      this.createGirdHelper()
       this.rendering()
+      this.textPosition()
     },
     onDocumentMouseMove(event) {
       event.preventDefault()
@@ -47,9 +271,15 @@ export default {
           }
           this.INTERSECTED = intersects[0].object
           this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
+          // 不同的物体执行不同的方法
+          const thingName = this.INTERSECTED.name
+          console.log('this.INTERSECTED:', this.INTERSECTED)
+          console.log('this.INTERSECTED:', thingName)
+          if (typeof thingName === 'number') {
+            this.switchName(thingName)
+          }
           // 改变物体的颜色(黑色)
-          console.log('this.INTERSECTED:', this.INTERSECTED.name)
-          this.INTERSECTED.material.color.set('black')
+          // this.INTERSECTED.material.color.set('black')
         }
       } else {
         if (this.INTERSECTED) {
@@ -62,7 +292,7 @@ export default {
       // 相机.视场，长宽比，近面，远面
       const v = window.outerWidth / window.outerHeight
       this.camera = new THREE.PerspectiveCamera(45, v, 1, 50000)
-      this.camera.position.set(100, 180, -180)
+      this.camera.position.set(100, 300, 100)
       this.camera.lookAt(this.scene.position)
     },
     createControls() {
@@ -71,12 +301,6 @@ export default {
       this.controls.autoRotate = true
       this.controls.minDistance = 45// 设置移动的最短距离（默认为零）
       this.controls.maxDistance = 500// 设置移动的最长距离（默认为无穷）
-    },
-    createAxesHelper() {
-      // 坐标系
-      this.axisHelper = new THREE.AxesHelper(600)
-
-      this.scene.add(this.axisHelper)
     },
     createRender() {
       // 渲染器
@@ -90,7 +314,7 @@ export default {
     createScene() {
       // 创建场景
       this.scene = new THREE.Scene()
-      this.scene.position.set(0, 40, 0)
+      this.scene.position.set(0, 80, 0)
     },
     createGround() {
       // 一个生成平面 长，宽，分段数
@@ -100,53 +324,211 @@ export default {
         color: '#fff',
         side: THREE.DoubleSide // 双面（正面及背面）渲染
       })
-      const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-      plane.rotation.x = -0.5 * Math.PI
-      plane.position.set(0, 0, 0)
-      plane.receiveShadow = true
-      plane.name = 'ground'
+      this.plane = new THREE.Mesh(planeGeometry, planeMaterial)
+      this.plane.rotation.x = -0.5 * Math.PI
+      this.plane.position.set(0, 0, 0)
+      this.plane.receiveShadow = true
+      this.plane.name = 'ground'
 
-      this.scene.add(plane)
+      this.scene.add(this.plane)
     },
     createCube() {
       // 创建一个集合体，10，10，10为正方体
       const cubeGeometry = new THREE.CubeGeometry(10, 10, 10)
-      // 指定材质
-      const cubeMaterial = new THREE.MeshLambertMaterial({ color: '#ff0000' })
-      const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-      cube.position.set(0, 5, 0)
-      cube.castShadow = true
-      cube.receiveShadow = true
-      cube.name = 'thing01'
+      for (let i = 0; i < 4; i += 1) {
+        // 指定材质
+        const cubeMaterial = new THREE.MeshLambertMaterial({ color: '#ff0000' })
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+        const cubeWidth = i > 0 ? i * 50 : i
+        cube.position.set(cubeWidth - 75, 5, 0)
+        cube.castShadow = true
+        cube.receiveShadow = true
+        cube.name = i
 
-      this.scene.add(cube)
+        this.textWz[i] = cube.position
 
-      return cube
+        this.scene.add(cube)
+      }
+    },
+    createCircleCamera() {
+      // 创建圆柱体，作为监控设备
+      const geometry = new THREE.CylinderGeometry(1.5, 1.5, 3, 50)
+      for (let i = 0; i < 10; i += 1) {
+        const material = new THREE.MeshLambertMaterial({
+          color: '#FF7C01',
+          wireframe: true
+        })
+        const cylinder = new THREE.Mesh(geometry, material)
+        const x = Math.floor(Math.random() * 191) - 95
+        const y = Math.floor(Math.random() * 91) - 45
+
+        cylinder.position.set(x, 30, y)
+        cylinder.rotation.x = 1
+        this.scene.add(cylinder)
+      }
     },
     createLight() {
       // 增加灯光
       const light = new THREE.DirectionalLight('#fff')
-      light.position.set(0, 180, -360)
+      light.position.set(0, 250, 360)
       light.castShadow = true
       light.shadow.mapSize.width = 2048
       light.shadow.mapSize.height = 2048
-      light.target = this.createCube()
+
+      light.shadow.camera.left = -100
+      light.shadow.camera.right = 100
+      light.shadow.camera.top = 20
+      light.shadow.camera.bottom = 0
+
+      light.target = this.plane
 
       // 再加环境光，让阴影透明
       const environmentLight = new THREE.AmbientLight('#ccc')
       this.scene.add(light)
       this.scene.add(environmentLight)
+
+      // 显示光照区域
+      const cameraHelper = new THREE.CameraHelper(light.shadow.camera)
+      this.scene.add(cameraHelper)
+    },
+    createAxesHelper() {
+      // 坐标系
+      this.axisHelper = new THREE.AxesHelper(600)
+
+      this.scene.add(this.axisHelper)
+    },
+    // 地面网格
+    createGirdHelper() {
+      const gridHelper = new THREE.GridHelper(3000, 100, 'red', 'gray')
+      gridHelper.position.y = -5
+      gridHelper.position.x = 0
+      this.scene.add(gridHelper)
     },
     rendering() {
       this.renderer.render(this.scene, this.camera)
       requestAnimationFrame(this.rendering)
+    },
+    makeTextSprite(message) {
+      // 先用画布将文字画出
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      ctx.fillStyle = '#333'
+      ctx.font = '30px Verdana'
+      ctx.lineWidth = 4
+      ctx.fillText(message, 10, 90)
+      const texture = new THREE.Texture(canvas)
+      texture.needsUpdate = true
+
+      // 使用Sprite显示文字
+      const material = new THREE.SpriteMaterial({ map: texture })
+      const textObj = new THREE.Sprite(material)
+      textObj.scale.set(25, 12.5, 37.5)
+      textObj.position.set(0, 0, 98)
+
+      return textObj
+    },
+    textPosition() {
+      for (let i = 0; i < 4; i += 1) {
+        const repostoryOne = this.makeTextSprite(`商场${i + 1}区`)
+        const x = this.textWz[i].x - 5.5
+        const y = this.textWz[i].y + 5
+        const z = this.textWz[i].z + 6.5
+        repostoryOne.center = new THREE.Vector2(0, 0)
+        this.scene.add(repostoryOne)
+        repostoryOne.position.set(x, y, z)
+      }
+    },
+    switchName(value) {
+      this.storeIndex = value
     }
   }
 }
 </script>
 
 <style lang="scss">
-.container {
-  background-image: linear-gradient( 135deg, #ABDCFF 10%, #0396FF 100%)
+.offset-left{
+  left: 55px !important;
+}
+.flex-style{
+  display: flex;
+  justify-content: space-between;
+  flex-wrap:nowrap;
+}
+.wrap{
+  .left-bar{
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    text-align: center;
+    background: #28292d;
+    color:#fff;
+    li{
+      padding:16px 0;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: 0.15s;
+      &.active{
+        border-left: 2px solid #ff762a;
+        background: #060606;
+      }
+      &:hover{
+        background: #060606;
+      }
+    }
+    i{
+      font-size:28px;
+    }
+  }
+  .place-info{
+    background: #252935;
+    position: absolute;
+    top: 100px;
+    left: 200px;
+    border-radius: 4px;
+    padding:15px;
+    font-size: 14px;
+    color: #fff;
+    .title{
+      text-align: left;
+      margin-bottom: 15px;
+    }
+    .item{
+      font-size: 12px;
+      @extend .flex-style;
+      &:first-child{
+        border:0;
+        margin:0;
+        padding:0;
+      }
+      border-top:1px solid #484747;
+      margin-top:10px;
+      padding-top: 10px;
+    }
+    span{
+      display: inline-block;
+    }
+    .el-tabs__item{
+      height: 25px;
+      line-height: 25px;
+      border:0;
+      font-size: 12px;
+      padding:0 10px;
+      background: #3d414c;
+      color: #86888f;
+      transition: 0.15s;
+    }
+    .el-tabs--card>.el-tabs__header .el-tabs__item.is-active{
+      color: #fff;
+      background: #1b1e25;
+    }
+    .el-tabs--card>.el-tabs__header,.el-tabs--card>.el-tabs__header .el-tabs__nav{
+      border:0;
+    }
+  }
+  .container {
+    background-image: linear-gradient( 135deg, #ABDCFF 10%, #0396FF 100%)
+  }
 }
 </style>
