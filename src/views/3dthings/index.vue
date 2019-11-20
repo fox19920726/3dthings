@@ -19,8 +19,8 @@
         </li>
       </ul>
     </div>
-    <div class="place-info">
-      <p class="title">商场{{storeIndex+1}}区</p>
+    <div class="place-info" draggable="true">
+      <p class="title">商场{{Number(storeIndex)+1}}区</p>
       <div
         v-for="(parentItem, parentIndex) in detailList"
         :key="parentIndex"
@@ -69,6 +69,7 @@
 import * as THREE from 'three'
 
 const OrbitControls = require('three-orbit-controls')(THREE)
+const ThreeBSP = require('tthreebsp')(THREE)
 
 export default {
   mounted() {
@@ -237,6 +238,66 @@ export default {
   methods: {
     pickNav(index) {
       this.isActive = index
+      this.toggleCamera(index)
+    },
+    toggleCamera(index) {
+      const children = this.scene.children
+
+      children.map((value, childrenIndex, arr) => {
+        const isCylinder = value.name.split('-')[0] === 'cylinder'
+        const isIndex = index === 3
+        if (isCylinder) {
+          value.visible = isIndex
+        }
+        return arr
+      })
+    },
+    toggleExit() {
+      console.log(111)
+    },
+    createMesh(geom) {
+      // 创建一个线框纹理
+      const wireFrameMat = new THREE.MeshBasicMaterial({
+        opacity: 0.5,
+        wireframeLinewidth: 0.5
+      });
+      wireFrameMat.wireframe = true;
+
+      // 创建模型
+      const mesh = new THREE.Mesh(geom, wireFrameMat);
+
+      return mesh;
+    },
+    createDoor() {
+      // 创建球形几何体
+      const sphereGeometry = new THREE.SphereGeometry(50, 20, 20)
+      const sphere = this.createMesh(sphereGeometry)
+
+      // 创建立方体几何体
+      const cubeGeometry = new THREE.BoxGeometry(30, 30, 30)
+      const cube = this.createMesh(cubeGeometry)
+      cube.position.x = -50
+
+      // 生成ThreeBSP对象
+      const sphereBSP = new ThreeBSP(sphere)
+      const cubeBSP = new ThreeBSP(cube)
+
+      // 进行并集计算
+      const resultBSP = sphereBSP.subtract(cubeBSP)
+
+      console.log('resultBSP:', resultBSP)
+      // 从BSP对象内获取到处理完后的mesh模型数据
+      const result = resultBSP.toMesh()
+      // 更新模型的面和顶点的数据
+      result.geometry.computeFaceNormals()
+      result.geometry.computeVertexNormals()
+
+      // 重新赋值一个纹理
+      const material = new THREE.MeshPhongMaterial({ color: 0x00ffff })
+      result.material = material
+
+      // 将计算出来模型添加到场景当中
+      this.scene.add(result)
     },
     createScence() {
       this.createScene()
@@ -247,6 +308,8 @@ export default {
       this.createGround()
       this.createCube()
       this.createCircleCamera()
+      this.createDoor()
+
       this.createLight()
       this.createGirdHelper()
       this.rendering()
@@ -273,10 +336,11 @@ export default {
           this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex()
           // 不同的物体执行不同的方法
           const thingName = this.INTERSECTED.name
+          const whatsThing = thingName.split('-')[0] === 'cube'
+          const thingNumber = thingName.split('-')[1]
           console.log('this.INTERSECTED:', this.INTERSECTED)
-          console.log('this.INTERSECTED:', thingName)
-          if (typeof thingName === 'number') {
-            this.switchName(thingName)
+          if (whatsThing) {
+            this.switchName(thingNumber)
           }
           // 改变物体的颜色(黑色)
           // this.INTERSECTED.material.color.set('black')
@@ -343,7 +407,7 @@ export default {
         cube.position.set(cubeWidth - 75, 5, 0)
         cube.castShadow = true
         cube.receiveShadow = true
-        cube.name = i
+        cube.name = `cube-${i}`
 
         this.textWz[i] = cube.position
 
@@ -359,11 +423,13 @@ export default {
           wireframe: true
         })
         const cylinder = new THREE.Mesh(geometry, material)
-        const x = Math.floor(Math.random() * 191) - 95
-        const y = Math.floor(Math.random() * 91) - 45
+        const x = Math.floor(Math.random() * 181) - 90
+        const y = Math.floor(Math.random() * 81) - 40
 
         cylinder.position.set(x, 30, y)
         cylinder.rotation.x = 1
+        cylinder.name = `cylinder-${i}`
+        cylinder.visible = false
         this.scene.add(cylinder)
       }
     },
