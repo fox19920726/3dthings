@@ -61,6 +61,7 @@
         </el-tabs>
       </div>
     </div>
+    <div class="heatmap" ref="heatmap"></div>
     <div class="container" ref="things"></div>
   </div>
 </template>
@@ -68,13 +69,18 @@
 <script>
 import * as THREE from 'three'
 
+import Heatmap from 'heatmap.js'
+
 const OrbitControls = require('three-orbit-controls')(THREE)
 const ThreeBSP = require('tthreebsp')(THREE)
+
 
 export default {
   mounted() {
     this.createScence()
     document.addEventListener('mousedown', this.onDocumentMouseMove, false)
+    document.addEventListener('mousewheel', this.onDocumentMousewheel, false)
+    this.addHeatMap()
   },
   data() {
     return {
@@ -236,6 +242,50 @@ export default {
     }
   },
   methods: {
+    addHeatMap() {
+      // 创建一个heatmap实例对象
+      const heatmapInstance = Heatmap.create({
+        container: this.$refs.heatmap
+      })
+      // 构建一些随机数据点,这里替换成你的业务数据
+      const points = []
+      let max = 0
+      const width = 1000
+      const height = 500
+      let len = 200
+      while (len > 0) {
+        len -= 1
+        const val = Math.floor(Math.random() * 100)
+        max = Math.max(max, val)
+        const point = {
+          x: Math.floor(Math.random() * width),
+          y: Math.floor(Math.random() * height),
+          value: val
+        }
+        points.push(point)
+      }
+      const data = {
+        max,
+        data: points
+      }
+      // 因为data是一组数据,所以直接setData
+      heatmapInstance.setData(data)
+      this.heatMapTo3D()
+    },
+    heatMapTo3D() {
+      const ctx = this.$refs.heatmap.getElementsByTagName('canvas')[0]
+      const heatMapGeo = new THREE.PlaneGeometry(200, 100)
+      const heatMapTexture = new THREE.Texture(ctx)
+      const heatMapMaterial = new THREE.MeshBasicMaterial({
+        map: heatMapTexture,
+        transparent: true
+      })
+      heatMapMaterial.map.needsUpdate = true
+      const heatMapPlane = new THREE.Mesh(heatMapGeo, heatMapMaterial)
+      heatMapPlane.position.set(0, 0.1, 0)
+      heatMapPlane.rotation.x = -Math.PI / 2
+      this.scene.add(heatMapPlane)
+    },
     pickNav(index) {
       this.isActive = index
       this.toggleCamera(index)
@@ -252,9 +302,6 @@ export default {
         return arr
       })
     },
-    toggleExit() {
-      console.log(111)
-    },
     createMesh(geom) {
       // 创建一个线框纹理
       const wireFrameMat = new THREE.MeshBasicMaterial({
@@ -270,13 +317,14 @@ export default {
     },
     createDoor() {
       // 创建球形几何体
-      const sphereGeometry = new THREE.SphereGeometry(50, 20, 20)
+      const sphereGeometry = new THREE.SphereGeometry(5, 2, 2)
       const sphere = this.createMesh(sphereGeometry)
+      sphere.position.set(0, 50, 0)
 
       // 创建立方体几何体
-      const cubeGeometry = new THREE.BoxGeometry(30, 30, 30)
+      const cubeGeometry = new THREE.BoxGeometry(2, 20, 2)
       const cube = this.createMesh(cubeGeometry)
-      cube.position.x = -50
+      cube.position.set(0, 50, 0)
 
       // 生成ThreeBSP对象
       const sphereBSP = new ThreeBSP(sphere)
@@ -285,7 +333,6 @@ export default {
       // 进行并集计算
       const resultBSP = sphereBSP.subtract(cubeBSP)
 
-      console.log('resultBSP:', resultBSP)
       // 从BSP对象内获取到处理完后的mesh模型数据
       const result = resultBSP.toMesh()
       // 更新模型的面和顶点的数据
@@ -309,11 +356,36 @@ export default {
       this.createCube()
       this.createCircleCamera()
       this.createDoor()
-
       this.createLight()
       this.createGirdHelper()
       this.rendering()
       this.textPosition()
+    },
+    onDocumentMousewheel(e) {
+      console.log(1)
+      e.preventDefault();
+      // e.stopPropagation();
+      // 判断浏览器IE，谷歌滑轮事件
+      if (e.wheelDelta) {
+        // 当滑轮向上滚动时
+        if (e.wheelDelta > 0) {
+          console.log('上')
+        }
+        // 当滑轮向下滚动时
+        if (e.wheelDelta < 0) {
+          console.log('下')
+        }
+        // Firefox滑轮事件
+      } else if (e.detail) {
+        // 当滑轮向上滚动时
+        if (e.detail > 0) {
+          console.log('上')
+        }
+        // 当滑轮向下滚动时
+        if (e.detail < 0) {
+          console.log('下')
+        }
+      }
     },
     onDocumentMouseMove(event) {
       event.preventDefault()
@@ -595,6 +667,11 @@ export default {
   }
   .container {
     background-image: linear-gradient( 135deg, #ABDCFF 10%, #0396FF 100%)
+  }
+  .heatmap{
+    display: none;
+    width:1000px;
+    height: 500px;
   }
 }
 </style>
